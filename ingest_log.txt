@@ -1,0 +1,91 @@
+2026-07-04T23:06:40.889244  OK    2026-07-01: ingested 30,287 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-01\Daily\productivity_detailed_report_2026-06-30_2026-07-01.csv
+2026-07-04T23:06:42.771048  OK    2026-07-02: ingested 29,847 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-02\Daily\productivity_detailed_report_2026-07-01_2026-07-02.csv
+2026-07-04T23:06:44.667402  OK    2026-07-03: ingested 30,026 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-03\Daily\productivity_detailed_report_2026-07-02_2026-07-03.csv
+2026-07-04T23:06:45.983451  OK    2026-07-04: ingested 29,370 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-04\Daily\productivity_detailed_report_2026-07-03_2026-07-04.csv
+2026-07-04T23:06:47.814638  Rebuilt aggregates -> D:\ProductivityReporting\agg_data.json (119,530 total rows in master)
+2026-07-04T23:13:01.478630  SKIP  2026-07-01: already ingested
+2026-07-04T23:13:01.515032  SKIP  2026-07-02: already ingested
+2026-07-04T23:13:01.547541  SKIP  2026-07-03: already ingested
+2026-07-04T23:13:01.581233  SKIP  2026-07-04: already ingested
+2026-07-04T23:13:02.384612  Rebuilt aggregates -> D:\ProductivityReporting\agg_data.json (119,530 total rows in master)
+2026-07-04T23:13:02.387538  WARN  dashboard template not found at D:\ProductivityReporting\dashboard_template.html, skipping publish
+2026-07-04T23:18:45.911378  SKIP  2026-07-01: already ingested
+2026-07-04T23:18:45.946735  SKIP  2026-07-02: already ingested
+2026-07-04T23:18:45.974954  SKIP  2026-07-03: already ingested
+2026-07-04T23:18:46.005472  SKIP  2026-07-04: already ingested
+2026-07-04T23:18:47.041059  Rebuilt aggregates -> D:\ProductivityReporting\agg_data.json (119,530 total rows in master)
+2026-07-04T23:18:47.083752  Published dashboard -> D:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-04T23:27:37.420633  SKIP  2026-07-01: already ingested
+2026-07-04T23:27:37.453035  SKIP  2026-07-02: already ingested
+2026-07-04T23:27:37.484202  SKIP  2026-07-03: already ingested
+2026-07-04T23:27:37.522745  SKIP  2026-07-04: already ingested
+2026-07-04T23:27:38.345091  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (119,530 total rows in master)
+2026-07-04T23:27:38.397504  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-04T23:48:05.041561  SKIP  2026-07-01: already ingested
+2026-07-04T23:48:05.070412  SKIP  2026-07-02: already ingested
+2026-07-04T23:48:05.098880  SKIP  2026-07-03: already ingested
+2026-07-04T23:48:05.127111  SKIP  2026-07-04: already ingested
+2026-07-04T23:48:35.689938  SKIP  2026-07-01: already ingested
+2026-07-04T23:48:35.722867  SKIP  2026-07-02: already ingested
+2026-07-04T23:48:35.751122  SKIP  2026-07-03: already ingested
+2026-07-04T23:48:35.780054  SKIP  2026-07-04: already ingested
+2026-07-04T23:51:55.849324  Schema change detected (missing columns: ['Process', 'totaltime']). Rebuilding master from source files via lookback re-ingest.
+2026-07-04T23:51:59.280222  OK    2026-07-01: ingested 30,287 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-01\Daily\productivity_detailed_report_2026-06-30_2026-07-01.csv
+2026-07-04T23:52:02.992685  OK    2026-07-02: ingested 29,847 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-02\Daily\productivity_detailed_report_2026-07-01_2026-07-02.csv
+2026-07-04T23:52:05.218626  OK    2026-07-03: ingested 30,026 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-03\Daily\productivity_detailed_report_2026-07-02_2026-07-03.csv
+2026-07-04T23:52:06.963864  OK    2026-07-04: ingested 29,370 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-04\Daily\productivity_detailed_report_2026-07-03_2026-07-04.csv
+2026-07-04T23:52:08.001555  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (119,530 total rows in master)
+2026-07-04T23:52:08.070445  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-05T00:01:14.262327  SKIP  2026-07-02: already ingested
+2026-07-05T00:01:14.301596  SKIP  2026-07-03: already ingested
+2026-07-05T00:01:14.339731  SKIP  2026-07-04: already ingested
+2026-07-05T00:01:14.351223  SKIP  2026-07-05: file not found at \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-05\Daily\productivity_detailed_report_2026-07-04_2026-07-05.csv
+2026-07-05T00:01:16.809788  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (119,530 total rows in master)
+2026-07-05T00:01:17.007656  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-05T11:55:51.080568  Schema change detected (missing columns: ['Stage', 'non_productivity_hours', 'Article Id / ISBN']). Rebuilding master from source files via lookback re-ingest.
+2026-07-05T11:55:52.646188  OK    2026-07-02: ingested 29,847 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-02\Daily\productivity_detailed_report_2026-07-01_2026-07-02.csv
+2026-07-05T11:55:53.990519  OK    2026-07-03: ingested 30,026 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-03\Daily\productivity_detailed_report_2026-07-02_2026-07-03.csv
+2026-07-05T11:55:55.422278  OK    2026-07-04: ingested 29,370 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-04\Daily\productivity_detailed_report_2026-07-03_2026-07-04.csv
+2026-07-05T11:55:56.303272  OK    2026-07-05: ingested 18,694 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-05\Daily\productivity_detailed_report_2026-07-04_2026-07-05.csv
+2026-07-05T11:55:59.233529  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (107,937 total rows in master)
+2026-07-05T11:55:59.456927  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-05T12:09:19.271733  SKIP  2026-07-02: already ingested
+2026-07-05T12:09:19.301245  SKIP  2026-07-03: already ingested
+2026-07-05T12:09:19.328256  SKIP  2026-07-04: already ingested
+2026-07-05T12:09:19.355824  SKIP  2026-07-05: already ingested
+2026-07-05T12:09:22.179380  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (107,937 total rows in master)
+2026-07-05T12:09:22.181290    daily=5 customer=132 employee=8506 process_breakdown=13410 user_productivity=26770
+2026-07-05T12:09:22.452544  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-05T12:31:54.255176  SKIP  2026-07-02: already ingested
+2026-07-05T12:31:54.287738  SKIP  2026-07-03: already ingested
+2026-07-05T12:31:54.316064  SKIP  2026-07-04: already ingested
+2026-07-05T12:31:54.345806  SKIP  2026-07-05: already ingested
+2026-07-05T12:34:12.556077  Schema change detected (missing columns: ['shift_hours']). Rebuilding master from source files via lookback re-ingest.
+2026-07-05T12:34:14.559021  OK    2026-07-02: ingested 29,847 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-02\Daily\productivity_detailed_report_2026-07-01_2026-07-02.csv
+2026-07-05T12:34:16.639983  OK    2026-07-03: ingested 30,026 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-03\Daily\productivity_detailed_report_2026-07-02_2026-07-03.csv
+2026-07-05T12:34:18.126442  OK    2026-07-04: ingested 29,370 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-04\Daily\productivity_detailed_report_2026-07-03_2026-07-04.csv
+2026-07-05T12:34:19.056119  OK    2026-07-05: ingested 18,694 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-05\Daily\productivity_detailed_report_2026-07-04_2026-07-05.csv
+2026-07-05T12:34:22.031247  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (107,937 total rows in master)
+2026-07-05T12:34:22.033245    daily=5 customer=132 employee=8506 process_breakdown=13410 user_productivity=26770
+2026-07-05T12:34:22.248338  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-05T16:27:05.152396  SKIP  2026-07-02: already ingested
+2026-07-05T16:27:05.181673  SKIP  2026-07-03: already ingested
+2026-07-05T16:27:05.210148  SKIP  2026-07-04: already ingested
+2026-07-05T16:27:05.244077  SKIP  2026-07-05: already ingested
+2026-07-05T16:27:10.519230  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (107,937 total rows in master)
+2026-07-05T16:27:10.522079    daily=5 customer=132 employee=8506 process_breakdown=13410 process_daily=4218 user_productivity=26770 user_summary=10681
+2026-07-05T16:27:10.893770  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-05T16:39:58.949686  SKIP  2026-07-02: already ingested
+2026-07-05T16:39:58.984364  SKIP  2026-07-03: already ingested
+2026-07-05T16:39:59.014902  SKIP  2026-07-04: already ingested
+2026-07-05T16:39:59.045228  SKIP  2026-07-05: already ingested
+2026-07-05T16:40:04.071776  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (107,937 total rows in master)
+2026-07-05T16:40:04.074048    daily=5 customer=132 employee=8506 process_breakdown=13410 process_daily=4218 user_productivity=26770 user_summary=10681
+2026-07-05T16:40:04.462099  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html
+2026-07-06T09:40:07.996320  SKIP  2026-07-03: already ingested
+2026-07-06T09:40:08.027101  SKIP  2026-07-04: already ingested
+2026-07-06T09:40:08.058515  SKIP  2026-07-05: already ingested
+2026-07-06T09:40:08.412236  OK    2026-07-06: ingested 3,713 rows from \\workflow\share\NIMBLE\Daily_Productivity_Report\2026\Jul\2026-07-06\Daily\productivity_detailed_report_2026-07-05_2026-07-06.csv
+2026-07-06T09:40:18.167360  Rebuilt aggregates -> d:\ProductivityReporting\agg_data.json (111,650 total rows in master)
+2026-07-06T09:40:18.170167    daily=6 customer=154 employee=9034 process_breakdown=13983 process_daily=4483 user_productivity=27717 user_summary=11269
+2026-07-06T09:40:19.040341  Published dashboard -> d:\ProductivityReporting\Published\Productivity_Dashboard.html

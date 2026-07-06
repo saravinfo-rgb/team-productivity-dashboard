@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NIMBLE Productivity Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1720;
+    --panel:#16212c;
+    --panel-2:#1c2833;
+    --line:#26333f;
+    --text:#e7edf3;
+    --muted:#8fa3b3;
+    --accent:#2dd4bf;
+    --accent-2:#5b8def;
+    --warn:#f0a94e;
+    --bad:#e2685b;
+    --good:#3fbf7f;
+    --radius:10px;
+    font-family: "Inter", "Segoe UI", -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    padding:28px 32px 60px;
+  }
+  h1{font-size:20px; font-weight:650; margin:0 0 2px;}
+  .sub{color:var(--muted); font-size:13px; margin:0 0 22px;}
+  .toolbar{
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px 16px; margin-bottom:22px;
+  }
+  .toolbar label{font-size:12px; color:var(--muted); margin-right:6px;}
+  select, input[type=date]{
+    background:var(--panel-2); color:var(--text); border:1px solid var(--line);
+    border-radius:7px; padding:7px 10px; font-size:13px;
+  }
+  .grp{display:flex; align-items:center; gap:6px;}
+  .spacer{flex:1;}
+  .badge{
+    font-size:12px; color:var(--muted); background:var(--panel-2);
+    border:1px solid var(--line); padding:6px 10px; border-radius:7px;
+  }
+  .kpis{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:22px;}
+  .kpi{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .kpi .lbl{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+  .kpi .val{font-size:24px; font-weight:650; margin-top:6px;}
+  .kpi .sub2{font-size:12px; margin-top:4px; color:var(--muted);}
+  .grid2{display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:16px;}
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px;
+  }
+  .panel h3{margin:0 0 12px; font-size:13.5px; font-weight:600; color:var(--text);}
+  .panel .hint{font-size:11.5px; color:var(--muted); margin:-8px 0 12px;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{text-align:left; color:var(--muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--panel);}
+  td{padding:6px 8px; border-bottom:1px solid #1e2a35;}
+  tr:hover td{background:#1a2530;}
+  tr.grp-cluster td{background:#20303d; font-weight:650; color:var(--accent); border-top:2px solid var(--line);}
+  tr.grp-dept td{background:#1a2530; font-weight:600; color:#c7d6e2;}
+  tr.grp-stage td{background:#182029; font-weight:550; color:#9db4c4; font-size:11.5px;}
+  .scrollbox{max-height:340px; overflow-y:auto;}
+  .scrollbox-tall{max-height:420px; overflow-y:auto;}
+  .pill{display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600;}
+  .pill.good{background:rgba(63,191,127,.15); color:var(--good);}
+  .pill.bad{background:rgba(226,104,91,.15); color:var(--bad);}
+  .pill.warn{background:rgba(240,169,78,.15); color:var(--warn);}
+  .pill.info{background:rgba(91,141,239,.15); color:var(--accent-2);}
+  .search{width:100%; margin-bottom:10px;}
+  .search input{width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:7px; padding:8px 10px; font-size:12.5px;}
+  .note{font-size:11.5px; color:var(--muted); margin-top:18px; line-height:1.5;}
+  .highlight-tag{display:inline-block; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; background:rgba(45,212,191,.1); color:var(--accent);}
+  @media (max-width:980px){ .kpis{grid-template-columns:repeat(2,1fr);} .grid2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<h1>Productivity Report — Account Manager View</h1>
+<p class="sub">Source: NIMBLE Daily Productivity Report (network share, auto-refreshed daily)</p>
+
+<div class="toolbar">
+  <div class="grp">
+    <label>View</label>
+    <select id="periodType">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="yearly">Yearly</option>
+    </select>
+  </div>
+  <div class="grp">
+    <label>From</label>
+    <input type="date" id="fromDate">
+  </div>
+  <div class="grp">
+    <label>To</label>
+    <input type="date" id="toDate">
+  </div>
+  <div class="grp">
+    <label>Cluster</label>
+    <select id="clusterFilter"><option value="">All</option></select>
+  </div>
+  <div class="grp">
+    <label>Department</label>
+    <select id="deptFilter"><option value="">All</option></select>
+  </div>
+  <div class="grp">
+    <label>Customer</label>
+    <select id="customerFilter"><option value="">All</option></select>
+  </div>
+  <div class="spacer"></div>
+  <span class="badge" id="rangeBadge">—</span>
+</div>
+
+<div class="kpis" id="kpiRow"></div>
+
+<div class="grid2">
+  <div class="panel">
+    <h3>Efficient Hours &amp; Task Volume Trend</h3>
+    <p class="hint">Bars = tasks completed, line = total efficient hours, per selected period bucket</p>
+    <canvas id="trendChart" height="130"></canvas>
+    <h3 style="margin-top:18px;">Stage → Process Outflow</h3>
+    <p class="hint">Task outflow (bars) and efficient hours (line) by stage &amp; process, for the selected filters — top 15 by outflow</p>
+    <canvas id="stageProcessChart" height="150"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Actual vs Target by Process (by Department)</h3>
+    <p class="hint">Top 15 processes by target, labeled Department: Process</p>
+    <canvas id="custChart" height="280"></canvas>
+  </div>
+</div>
+
+<div class="grid2" style="grid-template-columns:1fr;">
+  <div class="panel">
+    <h3>Top Employees by Efficient Hours</h3>
+    <div class="search"><input id="empSearch" placeholder="Search employee name…"></div>
+    <div class="scrollbox">
+      <table>
+        <thead><tr><th>Name</th><th>Department</th><th>Tasks</th><th>Eff. Hours</th><th>Productivity %</th></tr></thead>
+        <tbody id="empTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid2" style="grid-template-columns:1fr;">
+  <div class="panel">
+    <h3>Touchtime by Department — Highest &amp; Lowest Process</h3>
+    <p class="hint">Average touchtime and average effective hours per process, within each department. Highest/lowest touchtime process per department is flagged.</p>
+    <div class="scrollbox">
+      <table>
+        <thead><tr>
+          <th>Department</th><th>Process</th><th>Avg Touchtime</th><th>Avg Eff. Hours</th><th>Tasks</th><th></th>
+        </tr></thead>
+        <tbody id="touchtimeTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid2" style="grid-template-columns:1fr;">
+  <div class="panel">
+    <h3>Cluster → Department → Stage → Process Outflow</h3>
+    <p class="hint">Output, efficient hours, and touchtime per process, grouped by cluster (teamgroup), department, and stage. Responds to date range, period, and customer filters.</p>
+    <div class="scrollbox-tall">
+      <table>
+        <thead><tr><th>Cluster</th><th>Department</th><th>Stage</th><th>Process</th><th>Tasks (Outflow)</th><th>Actual Output</th><th>Eff. Hours</th><th>Avg Touchtime</th></tr></thead>
+        <tbody id="outflowTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Process Wise Daily Outflow -->
+<div class="grid2" style="grid-template-columns:1fr;">
+  <div class="panel">
+    <h3>📊 Process Wise Daily Outflow</h3>
+    <p class="hint">
+      Daily task outflow by process, showing completed tasks, actual output, and touchtime. 
+      Use date filters above to narrow down. <span class="highlight-tag">New</span>
+    </p>
+    <div class="scrollbox-tall">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Process</th><th>Dept</th><th>Stage</th>
+          <th>Tasks</th><th>✅ Completed</th><th>📈 Actual</th>
+          <th>🎯 Target</th><th>⏱️ Avg Touch</th>
+          <th>⚡ Eff. Hrs</th><th>👥 Customers</th>
+        </tr></thead>
+        <tbody id="processDailyTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- User Productivity Per Process -->
+<div class="grid2" style="grid-template-columns:1fr;">
+  <div class="panel">
+    <h3>👤 User Productivity — Per Process</h3>
+    <p class="hint">
+      <strong>Articles</strong> = distinct article/ISBN IDs touched (excludes "0" placeholder for non-article tasks). 
+      <strong>Touchtime</strong> = SUM of total time. 
+      <strong>Effective Hours</strong> = SUM. 
+      <strong>Non-Productivity Hours</strong> = AVG per entry. 
+      Use date range and customer filters above. <span class="highlight-tag">Updated</span>
+    </p>
+    <div class="search"><input id="userProdSearch" placeholder="Search user name…"></div>
+    <div class="scrollbox-tall">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Cluster</th><th>Dept</th><th>User</th><th>Process</th>
+          <th>📄 Articles</th><th>⏱️ Touch (SUM)</th>
+          <th>⚡ Eff. Hrs (SUM)</th><th>⏳ Non-Prod (AVG)</th>
+          <th>📋 Tasks</th>
+        </tr></thead>
+        <tbody id="userProdTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- User Summary -->
+<div class="grid2" style="grid-template-columns:1fr;">
+  <div class="panel">
+    <h3>👤 User Summary — All Processes</h3>
+    <p class="hint">
+      Rolled-up view of user productivity across all processes and customers. 
+      <strong>Articles</strong> = distinct article/ISBN IDs. 
+      <strong>Non-Prod.</strong> = AVG across all entries. 
+      <span class="highlight-tag">New</span>
+    </p>
+    <div class="search"><input id="userSummarySearch" placeholder="Search user name…"></div>
+    <div class="scrollbox" style="max-height:300px;">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>User</th><th>Dept</th><th>📋 Tasks</th>
+          <th>📄 Articles</th><th>⏱️ Touch (SUM)</th>
+          <th>⚡ Eff. Hrs (SUM)</th><th>⏳ Non-Prod (AVG)</th>
+          <th>🔄 Processes</th><th>👥 Customers</th>
+        </tr></thead>
+        <tbody id="userSummaryTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<p class="note">
+  <strong>Legend:</strong> 
+  <span class="pill good">●</span> High performance | 
+  <span class="pill warn">●</span> Needs attention | 
+  <span class="pill bad">●</span> Below target<br>
+  <strong>Articles</strong> = distinct article/ISBN IDs based on NIMBLE manager (excludes "0" placeholder).<br>
+  <strong>Non-Productivity Hours</strong> = average per entry (not sum) to reflect typical non-productive time per task.<br>
+  Dashboard auto-refreshes daily. Data source: NIMBLE Daily Productivity Report.
+</p>
+
+<script>const REPORT_DATA = __REPORT_DATA_JSON__;</script>
+<script>
+const D = REPORT_DATA;
+
+function parseDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function isoWeek(d){
+  const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (dt.getUTCDay()+6)%7;
+  dt.setUTCDate(dt.getUTCDate()-dayNum+3);
+  const firstThu = new Date(Date.UTC(dt.getUTCFullYear(),0,4));
+  const week = 1 + Math.round(((dt-firstThu)/86400000 - 3 + ((firstThu.getUTCDay()+6)%7))/7);
+  return `${dt.getUTCFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+function bucketKey(dateStr, type){
+  const d = parseDate(dateStr);
+  if(type==='daily') return dateStr;
+  if(type==='weekly') return isoWeek(d);
+  if(type==='monthly') return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  if(type==='yearly') return `${d.getFullYear()}`;
+}
+
+function fmtTime(secs){
+  secs = Math.round(secs || 0);
+  if (secs === 0) return '0s';
+  const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60), s = secs%60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+// ===== HELPER: Get cluster value from any row (handles both 'teamgroup' and 'cluster') =====
+function getCluster(row) {
+  return row.teamgroup || row.cluster || '';
+}
+
+// ===== HELPER: Check if row matches cluster filter =====
+function matchesCluster(row, clusterFilter) {
+  if (!clusterFilter) return true;
+  const cluster = getCluster(row);
+  return cluster === clusterFilter;
+}
+
+// ===== HELPER: Check if row matches department filter =====
+function matchesDept(row, deptFilter) {
+  if (!deptFilter) return true;
+  return (row.department || row.dept || '') === deptFilter;
+}
+
+// ===== HELPER: Check if row matches customer filter =====
+function matchesCustomer(row, custFilter) {
+  if (!custFilter) return true;
+  return (row.Customer || '') === custFilter;
+}
+
+const allDates = [...new Set(D.daily.map(r=>r.shift_date))].sort();
+const customers = [...new Set(D.process_breakdown.map(r=>r.Customer))].filter(c=>c && c!=='-').sort();
+const clusters = [...new Set(D.process_breakdown.map(r=>r.teamgroup))].filter(c=>c && c!=='-').sort();
+const departments = [...new Set(D.process_breakdown.map(r=>r.department))].filter(c=>c && c!=='-').sort();
+
+function fillSelect(id, values){
+  const sel = document.getElementById(id);
+  values.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+}
+fillSelect('customerFilter', customers);
+fillSelect('clusterFilter', clusters);
+fillSelect('deptFilter', departments);
+
+if (allDates.length > 0) {
+  document.getElementById('fromDate').value = allDates[0];
+  document.getElementById('toDate').value = allDates[allDates.length-1];
+}
+
+function inRange(dateStr){
+  const from = document.getElementById('fromDate').value;
+  const to = document.getElementById('toDate').value;
+  return dateStr >= from && dateStr <= to;
+}
+
+let trendChart, custChart, stageProcessChart;
+
+function getFilters() {
+  const periodType = document.getElementById('periodType').value;
+  const custFilter = document.getElementById('customerFilter').value;
+  const clusterFilter = document.getElementById('clusterFilter').value;
+  const deptFilter = document.getElementById('deptFilter').value;
+  const filteredDates = allDates.filter(inRange);
+  return { periodType, custFilter, clusterFilter, deptFilter, filteredDates };
+}
+
+function render(){
+  const filters = getFilters();
+  const { periodType, custFilter, clusterFilter, deptFilter, filteredDates } = filters;
+
+  // Build filter function for process_breakdown rows
+  const filterFn = r => {
+    if (!filteredDates.includes(r.shift_date)) return false;
+    if (!matchesCustomer(r, custFilter)) return false;
+    if (!matchesCluster(r, clusterFilter)) return false;
+    if (!matchesDept(r, deptFilter)) return false;
+    return true;
+  };
+
+  const pbRows = D.process_breakdown.filter(filterFn);
+  
+  const rangeText = filteredDates.length > 0 ? 
+    `${filteredDates.length} day(s) selected · ${periodType} view` :
+    'No dates selected';
+  document.getElementById('rangeBadge').textContent = rangeText +
+    (clusterFilter ? ` · ${clusterFilter}` : '') +
+    (deptFilter ? ` · ${deptFilter}` : '') +
+    (custFilter ? ` · ${custFilter}` : '');
+
+  // ---- KPIs ----
+  const totalTasks = pbRows.reduce((s,r)=>s+r.tasks,0);
+  const totalCompleted = pbRows.reduce((s,r)=>s+(r.completed||0),0);
+  const totalActual = pbRows.reduce((s,r)=>s+r.actual,0);
+  const totalTarget = pbRows.reduce((s,r)=>s+r.target,0);
+  const totalEff = pbRows.reduce((s,r)=>s+r.eff_hours,0);
+  const attain = totalTarget ? (totalActual/totalTarget*100) : 0;
+  const compRate = totalTasks ? (totalCompleted/totalTasks*100) : 0;
+  
+  // Employees - need to filter by cluster/dept/customer
+  const empRows = D.employee.filter(r => {
+    if (!filteredDates.includes(r.shift_date)) return false;
+    if (!matchesCustomer(r, custFilter)) return false;
+    if (!matchesCluster(r, clusterFilter)) return false;
+    if (!matchesDept(r, deptFilter)) return false;
+    return true;
+  });
+  const employees = new Set(empRows.map(r => r.UID));
+
+  const kpiRow = document.getElementById('kpiRow');
+  const kpis = [
+    ['Total Tasks', totalTasks.toLocaleString(), `${totalCompleted.toLocaleString()} completed`],
+    ['Completion Rate', compRate.toFixed(1)+'%', compRate>=90?'On track':'Below 90% target'],
+    ['Actual vs Target', totalActual.toLocaleString()+' / '+Math.round(totalTarget).toLocaleString(), attain.toFixed(1)+'% attainment'],
+    ['Efficient Hours', totalEff.toLocaleString(undefined,{maximumFractionDigits:0}), 'sum across period'],
+    ['Active Employees', employees.size.toLocaleString(), 'unique contributors'],
+  ];
+  kpiRow.innerHTML = kpis.map(([l,v,s])=>`
+    <div class="kpi"><div class="lbl">${l}</div><div class="val">${v}</div><div class="sub2">${s}</div></div>
+  `).join('');
+
+  // ---- Trend chart ----
+  const buckets = {};
+  pbRows.forEach(r=>{
+    const k = bucketKey(r.shift_date, periodType);
+    if(!buckets[k]) buckets[k] = {tasks:0, eff:0};
+    buckets[k].tasks += (r.completed||0);
+    buckets[k].eff += r.eff_hours;
+  });
+  const bKeys = Object.keys(buckets).sort();
+  if(trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    data: {
+      labels: bKeys,
+      datasets: [
+        {type:'bar', label:'Tasks Completed', data:bKeys.map(k=>buckets[k].tasks), backgroundColor:'#2dd4bf88', yAxisID:'y'},
+        {type:'line', label:'Efficient Hours', data:bKeys.map(k=>buckets[k].eff), borderColor:'#5b8def', backgroundColor:'#5b8def', yAxisID:'y1', tension:.3}
+      ]
+    },
+    options: {
+      responsive:true,
+      scales:{
+        y:{position:'left', ticks:{color:'#8fa3b3'}, grid:{color:'#26333f'}},
+        y1:{position:'right', ticks:{color:'#8fa3b3'}, grid:{drawOnChartArea:false}},
+        x:{ticks:{color:'#8fa3b3'}, grid:{color:'#1c2833'}}
+      },
+      plugins:{legend:{labels:{color:'#e7edf3'}}}
+    }
+  });
+
+  // ---- Stage → Process chart ----
+  const spAgg = {};
+  pbRows.forEach(r=>{
+    const key = r.Stage+' → '+r.Process;
+    if(!spAgg[key]) spAgg[key] = {tasks:0, eff:0};
+    spAgg[key].tasks += (r.completed||0) || r.tasks;
+    spAgg[key].eff += r.eff_hours;
+  });
+  const topSP = Object.entries(spAgg).sort((a,b)=>b[1].tasks-a[1].tasks).slice(0,15);
+  if(stageProcessChart) stageProcessChart.destroy();
+  stageProcessChart = new Chart(document.getElementById('stageProcessChart'), {
+    data:{
+      labels: topSP.map(c=>c[0]),
+      datasets:[
+        {type:'bar', label:'Task Outflow', data:topSP.map(c=>c[1].tasks), backgroundColor:'#2dd4bf88', yAxisID:'y'},
+        {type:'line', label:'Efficient Hours', data:topSP.map(c=>c[1].eff), borderColor:'#5b8def', backgroundColor:'#5b8def', yAxisID:'y1', tension:.3}
+      ]
+    },
+    options:{
+      responsive:true,
+      scales:{
+        y:{position:'left', ticks:{color:'#8fa3b3'}, grid:{color:'#26333f'}},
+        y1:{position:'right', ticks:{color:'#8fa3b3'}, grid:{drawOnChartArea:false}},
+        x:{ticks:{color:'#8fa3b3', maxRotation:60, minRotation:40, font:{size:10}}, grid:{color:'#1c2833'}}
+      },
+      plugins:{legend:{labels:{color:'#e7edf3'}}}
+    }
+  });
+
+  // ---- Actual vs Target ----
+  const procAgg = {};
+  pbRows.forEach(r=>{
+    const key = r.department+': '+r.Process;
+    if(!procAgg[key]) procAgg[key] = {actual:0,target:0};
+    procAgg[key].actual += r.actual;
+    procAgg[key].target += r.target;
+  });
+  const topProc = Object.entries(procAgg).sort((a,b)=>b[1].target-a[1].target).slice(0,15);
+  if(custChart) custChart.destroy();
+  custChart = new Chart(document.getElementById('custChart'), {
+    type:'bar',
+    data:{
+      labels: topProc.map(c=>c[0]),
+      datasets:[
+        {label:'Actual', data:topProc.map(c=>c[1].actual), backgroundColor:'#2dd4bf'},
+        {label:'Target', data:topProc.map(c=>c[1].target), backgroundColor:'#26333f'}
+      ]
+    },
+    options:{
+      indexAxis:'y', responsive:true,
+      scales:{ x:{ticks:{color:'#8fa3b3'}, grid:{color:'#26333f'}}, y:{ticks:{color:'#8fa3b3', font:{size:10}}, grid:{display:false}} },
+      plugins:{legend:{labels:{color:'#e7edf3'}}}
+    }
+  });
+
+  // ---- Employee table ----
+  window._empAgg = {};
+  const _shiftHoursSeen = new Set();
+  empRows.forEach(r=>{
+    if(!window._empAgg[r.UID]) window._empAgg[r.UID] = {Name:r.Name, dept:r.dept, tasks:0, actual:0, target:0, eff:0, scheduledHours:0};
+    window._empAgg[r.UID].tasks += r.tasks;
+    window._empAgg[r.UID].actual += r.actual;
+    window._empAgg[r.UID].target += r.target;
+    window._empAgg[r.UID].eff += r.eff_hours;
+    const dedupeKey = r.shift_date+'|'+r.UID;
+    if(r.shift_hours && !_shiftHoursSeen.has(dedupeKey)){
+      _shiftHoursSeen.add(dedupeKey);
+      window._empAgg[r.UID].scheduledHours += r.shift_hours;
+    }
+  });
+  renderEmpTable();
+
+  // ---- Touchtime by department ----
+  const ttAgg = {};
+  pbRows.forEach(r=>{
+    const key = r.department + '|' + r.Process;
+    if(!ttAgg[key]) ttAgg[key] = {department:r.department, process:r.Process, seconds:0, effHours:0, tasks:0};
+    ttAgg[key].seconds += r.avg_seconds * r.tasks;
+    ttAgg[key].effHours += r.eff_hours;
+    ttAgg[key].tasks += r.tasks;
+  });
+  const byDept = {};
+  Object.values(ttAgg).forEach(e=>{
+    if(!e.tasks) return;
+    const avgTouch = e.seconds / e.tasks;
+    const avgEff = e.effHours / e.tasks;
+    if(!byDept[e.department]) byDept[e.department] = [];
+    byDept[e.department].push({process:e.process, avgTouch, avgEff, tasks:e.tasks});
+  });
+  let ttHtml = '';
+  Object.keys(byDept).sort().forEach(dept=>{
+    const procs = byDept[dept].sort((a,b)=>b.avgTouch-a.avgTouch);
+    const maxTouch = procs[0].avgTouch, minTouch = procs[procs.length-1].avgTouch;
+    procs.forEach((p,i)=>{
+      let flag = '';
+      if(procs.length>1 && p.avgTouch===maxTouch) flag = `<span class="pill bad">Highest</span>`;
+      else if(procs.length>1 && p.avgTouch===minTouch) flag = `<span class="pill good">Lowest</span>`;
+      ttHtml += `<tr>${i===0?`<td rowspan="${procs.length}">${dept}</td>`:''}
+        <td>${p.process}</td><td>${fmtTime(p.avgTouch)}</td><td>${p.avgEff.toFixed(2)}</td><td>${p.tasks.toLocaleString()}</td><td>${flag}</td></tr>`;
+    });
+  });
+  document.getElementById('touchtimeTable').innerHTML = ttHtml ||
+    `<tr><td colspan="6" style="color:var(--muted)">No process-level data for this selection.</td></tr>`;
+
+  // ---- Outflow table ----
+  const ofAgg = {};
+  pbRows.forEach(r=>{
+    const key = r.teamgroup+'|'+r.department+'|'+r.Stage+'|'+r.Process;
+    if(!ofAgg[key]) ofAgg[key] = {cluster:r.teamgroup, dept:r.department, stage:r.Stage, process:r.Process, tasks:0, actual:0, eff:0, seconds:0};
+    ofAgg[key].tasks += r.tasks;
+    ofAgg[key].actual += r.actual;
+    ofAgg[key].eff += r.eff_hours;
+    ofAgg[key].seconds += r.avg_seconds * r.tasks;
+  });
+  const outflowRows = Object.values(ofAgg).map(o=>({...o, avgTouch: o.tasks ? o.seconds/o.tasks : 0}))
+    .sort((a,b)=> (a.cluster||'').localeCompare(b.cluster||'') || (a.dept||'').localeCompare(b.dept||'') || (a.stage||'').localeCompare(b.stage||'') || b.eff-a.eff);
+
+  let outflowHtml = '';
+  let curCluster = null, curDept = null, curStage = null;
+  outflowRows.forEach(o=>{
+    if(o.cluster !== curCluster){
+      outflowHtml += `<tr class="grp-cluster"><td colspan="8">Cluster: ${o.cluster}</td></tr>`;
+      curCluster = o.cluster; curDept = null; curStage = null;
+    }
+    if(o.dept !== curDept){
+      outflowHtml += `<tr class="grp-dept"><td></td><td colspan="7">Department: ${o.dept}</td></tr>`;
+      curDept = o.dept; curStage = null;
+    }
+    if(o.stage !== curStage){
+      outflowHtml += `<tr class="grp-stage"><td></td><td></td><td colspan="6">Stage: ${o.stage}</td></tr>`;
+      curStage = o.stage;
+    }
+    outflowHtml += `<tr><td></td><td></td><td></td><td>${o.process}</td><td>${o.tasks.toLocaleString()}</td>
+      <td>${o.actual.toLocaleString()}</td><td>${o.eff.toFixed(1)}</td><td>${fmtTime(o.avgTouch)}</td></tr>`;
+  });
+  document.getElementById('outflowTable').innerHTML = outflowHtml ||
+    `<tr><td colspan="8" style="color:var(--muted)">No data for this selection.</td></tr>`;
+
+  // ---- Process Daily table ----
+  renderProcessDaily(filters);
+  
+  // ---- User Productivity tables ----
+  renderUserProductivity(filters);
+  renderUserSummary(filters);
+}
+
+// ===== Process Daily render =====
+function renderProcessDaily(filters) {
+  const { custFilter, clusterFilter, deptFilter, filteredDates } = filters || getFilters();
+  const pdRows = D.process_daily || [];
+  
+  // Filter by date
+  let rows = pdRows.filter(r => filteredDates.includes(r.shift_date))
+    .sort((a,b) => a.shift_date.localeCompare(b.shift_date) || a.Process.localeCompare(b.Process));
+  
+  // Apply cluster, dept, customer filters via process_breakdown cross-reference
+  if (clusterFilter || deptFilter || custFilter) {
+    const pb = D.process_breakdown || [];
+    const validKeys = new Set();
+    pb.filter(r => {
+      if (!filteredDates.includes(r.shift_date)) return false;
+      if (!matchesCustomer(r, custFilter)) return false;
+      if (!matchesCluster(r, clusterFilter)) return false;
+      if (!matchesDept(r, deptFilter)) return false;
+      return true;
+    }).forEach(r => {
+      validKeys.add(r.shift_date + '|' + r.Process);
+    });
+    rows = rows.filter(r => validKeys.has(r.shift_date + '|' + r.Process));
+  }
+  
+  const html = rows.slice(0, 500).map(r => `
+    <tr>
+      <td><strong>${r.shift_date}</strong></td>
+      <td>${r.Process}</td>
+      <td>${r.primary_department || '-'}</td>
+      <td>${r.primary_stage || '-'}</td>
+      <td>${r.tasks.toLocaleString()}</td>
+      <td>${(r.completed || 0).toLocaleString()}</td>
+      <td>${r.actual.toLocaleString()}</td>
+      <td>${r.target.toLocaleString()}</td>
+      <td>${fmtTime(r.avg_touchtime_seconds || 0)}</td>
+      <td>${r.eff_hours.toFixed(1)}</td>
+      <td>${(r.customer_count || 0).toLocaleString()}</td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('processDailyTable').innerHTML = html || 
+    `<tr><td colspan="11" style="color:var(--muted)">No process daily data for this selection.</td></tr>`;
+}
+
+// ===== User Productivity per Process =====
+function renderUserProductivity(filters) {
+  const { custFilter, clusterFilter, deptFilter, filteredDates } = filters || getFilters();
+  const q = document.getElementById('userProdSearch').value.toLowerCase();
+  
+  const rows = (D.user_productivity || [])
+    .filter(e => {
+      if (!filteredDates.includes(e.shift_date)) return false;
+      if (!matchesCustomer(e, custFilter)) return false;
+      if (!matchesCluster(e, clusterFilter)) return false;
+      if (!matchesDept(e, deptFilter)) return false;
+      return e.Name.toLowerCase().includes(q);
+    })
+    .sort((a,b) => a.shift_date.localeCompare(b.shift_date) || 
+                     a.Name.localeCompare(b.Name) ||
+                     a.Process.localeCompare(b.Process))
+    .slice(0, 500);
+  
+  document.getElementById('userProdTable').innerHTML = rows.map(e => `
+    <tr>
+      <td>${e.shift_date}</td>
+      <td>${e.teamgroup || '-'}</td>
+      <td>${e.department || '-'}</td>
+      <td><strong>${e.Name}</strong></td>
+      <td>${e.Process || '-'}</td>
+      <td>${e.articles}</td>
+      <td>${fmtTime(e.total_touchtime_seconds)}</td>
+      <td>${e.eff_hours.toFixed(2)}</td>
+      <td>${fmtTime(e.non_prod_seconds)}</td>
+      <td>${e.tasks}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="10" style="color:var(--muted)">No matching users.</td></tr>`;
+}
+
+// ===== User Summary =====
+function renderUserSummary(filters) {
+  const { custFilter, clusterFilter, deptFilter, filteredDates } = filters || getFilters();
+  const q = document.getElementById('userSummarySearch').value.toLowerCase();
+  
+  let rows = (D.user_summary || [])
+    .filter(e => {
+      if (!filteredDates.includes(e.shift_date)) return false;
+      if (!matchesCluster(e, clusterFilter)) return false;
+      if (!matchesDept(e, deptFilter)) return false;
+      return e.Name.toLowerCase().includes(q);
+    });
+  
+  // Customer filter: user_summary doesn't have customer, so filter via user_productivity
+  if (custFilter) {
+    const up = D.user_productivity || [];
+    const validKeys = new Set();
+    up.filter(r => {
+      if (!filteredDates.includes(r.shift_date)) return false;
+      if (!matchesCustomer(r, custFilter)) return false;
+      if (!matchesCluster(r, clusterFilter)) return false;
+      if (!matchesDept(r, deptFilter)) return false;
+      return true;
+    }).forEach(r => {
+      validKeys.add(r.shift_date + '|' + r.UID);
+    });
+    rows = rows.filter(r => validKeys.has(r.shift_date + '|' + r.UID));
+  }
+  
+  rows = rows.sort((a,b) => a.shift_date.localeCompare(b.shift_date) || b.eff_hours - a.eff_hours)
+    .slice(0, 300);
+  
+  document.getElementById('userSummaryTable').innerHTML = rows.map(e => `
+    <tr>
+      <td>${e.shift_date}</td>
+      <td><strong>${e.Name}</strong></td>
+      <td>${e.department || '-'}</td>
+      <td>${e.tasks.toLocaleString()}</td>
+      <td>${e.articles}</td>
+      <td>${fmtTime(e.total_touchtime_seconds)}</td>
+      <td>${e.eff_hours.toFixed(2)}</td>
+      <td>${fmtTime(e.non_prod_seconds)}</td>
+      <td>${e.processes}</td>
+      <td>${e.customers}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="10" style="color:var(--muted)">No data for this selection.</td></tr>`;
+}
+
+function renderEmpTable(){
+  const q = document.getElementById('empSearch').value.toLowerCase();
+  const rows = Object.values(window._empAgg || {})
+    .filter(e=>e.Name.toLowerCase().includes(q))
+    .sort((a,b)=>b.eff-a.eff).slice(0,40);
+  document.getElementById('empTable').innerHTML = rows.map(e=>{
+    const hasSchedule = e.scheduledHours > 0;
+    const prod = hasSchedule ? (e.eff/e.scheduledHours*100) : null;
+    const pillClass = prod===null ? '' : (prod>=95?'good':prod>=75?'warn':'bad');
+    const prodDisplay = prod===null ? `<span class="pill" style="color:var(--muted)">n/a</span>` : `<span class="pill ${pillClass}">${prod.toFixed(0)}%</span>`;
+    return `<tr><td>${e.Name}</td><td>${e.dept}</td><td>${e.tasks}</td><td>${e.eff.toFixed(2)}</td>
+      <td>${prodDisplay}</td></tr>`;
+  }).join('');
+}
+
+// ---- Event listeners ----
+['periodType','customerFilter','clusterFilter','deptFilter','fromDate','toDate'].forEach(id=>{
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', render);
+});
+document.getElementById('empSearch').addEventListener('input', renderEmpTable);
+document.getElementById('userProdSearch').addEventListener('input', () => renderUserProductivity(getFilters()));
+document.getElementById('userSummarySearch').addEventListener('input', () => renderUserSummary(getFilters()));
+
+// ---- Initial render ----
+if (allDates.length > 0) {
+  render();
+} else {
+  document.body.innerHTML += `<p style="color:var(--bad);">No data available. Please run the ingestion script first.</p>`;
+}
+</script>
+</body>
+</html>
